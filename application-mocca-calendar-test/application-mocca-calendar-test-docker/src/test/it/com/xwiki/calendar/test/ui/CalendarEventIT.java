@@ -58,8 +58,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * UI tests for the calendar events: creating, viewing, editing and deleting them, their colors and author, their hours,
- * and moving or resizing them with the mouse. Each group of tests uses its own calendar.
+ * UI tests for the calendar events.
  *
  * @version $Id$
  */
@@ -88,7 +87,6 @@ class CalendarEventIT
 
     private static final String UPDATED_DESCRIPTION = "Weekly sync of the team, in the second meeting room";
 
-    // Characters that have a meaning in HTML, JavaScript, XWiki references and URLs, plus non ASCII characters.
     private static final String SPECIAL_TITLE = "Q&A <b>\"R&D\"</b> 'review' 1/2. 50% #1 ?x=y café ü 日本 €";
 
     private static final String SPECIAL_DESCRIPTION =

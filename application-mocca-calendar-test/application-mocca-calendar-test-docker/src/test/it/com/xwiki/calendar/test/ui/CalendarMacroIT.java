@@ -55,8 +55,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * UI tests for the calendar macros: the event filters of the calendar macro, the conversion of a page using the
- * calendar macro into a calendar, the upcoming events macro and panel, and the calendar of a user who cannot edit it.
+ * UI tests for the calendar macros.
  *
  * @version $Id$
  */
