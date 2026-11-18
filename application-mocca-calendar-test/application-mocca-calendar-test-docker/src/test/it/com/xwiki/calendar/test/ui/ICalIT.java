@@ -124,7 +124,6 @@ class ICalIT
         ServletEngine servletEngine = testConfiguration.getServletEngine();
         this.serverHost = servletEngine.isOutsideDocker() ? "localhost" : servletEngine.getInternalIP();
         this.serverPort = servletEngine.isOutsideDocker() ? servletEngine.getPort() : servletEngine.getInternalPort();
-        // The browser remembers the calendar view: start from the default one, whatever the previous tests did.
         CalendarElement.forgetSelectedView();
     }
 
@@ -132,7 +131,6 @@ class ICalIT
     @Order(1)
     void subscribeToExportedCalendar(TestUtils setup, TestReference testReference) throws Exception
     {
-        // Start from a clean state, in case the tests are run again on the same XWiki instance.
         SpaceCleaner.deleteSpace(setup, testReference.getLastSpaceReference().getParent());
         SpaceReference parent = new SpaceReference(testReference.getLastSpaceReference().getParent());
         CalendarElement globalCalendar = MoccaCalendarHomePage.gotoPage().getCalendar().showToday(MONTH);
@@ -192,7 +190,7 @@ class ICalIT
 
     @Test
     @Order(2)
-    void exportedFile() throws Exception
+    void exportedFile()
     {
         // A weekly event, to check the export of the recurrence.
         String weeklyEvent = "Weekly sync";
@@ -253,8 +251,8 @@ class ICalIT
     @Order(5)
     void importICalFile(TestUtils setup, TestReference testReference, @TempDir Path directory) throws Exception
     {
-        // Bug: the import checks the file against the maximum upload size of the wiki preferences, and fails when that
-        // size is not set (the default) instead of falling back to the default limit. Set it.
+        // FIXME: the import checks the file against the maximum upload size of the wiki preferences, and fails when
+        //  that size is not set (the default) instead of falling back to the default limit. Set it.
         setup.updateObject("XWiki", "XWikiPreferences", "XWiki.XWikiPreferences", 0, "upload_maxsize", "10485760");
 
         SpaceReference parent = new SpaceReference(testReference.getLastSpaceReference().getParent());
@@ -263,9 +261,9 @@ class ICalIT
         CalendarElement calendar = importPage.getCalendar().showToday(MONTH);
 
         // An event with hours (at noon, to stay on the same day whatever the time zone), an all day event and a daily
-        // event with 3 instances. The last instance is given as a date (UNTIL) because of a bug: a recurrence given as
-        // a number of instances (COUNT) is imported with one instance too many (RecurrenceProcessor of
-        // macro-fullcalendar).
+        // event with 3 instances.
+        // FIXME: The last instance is given as a date (UNTIL) because a recurrence given as a number of instances
+        //  (COUNT) is imported with one instance too many (RecurrenceProcessor of macro-fullcalendar).
         LocalDate today = EventDates.date(0);
         File file = new ICalFile()
             .addEvent(IMPORTED_MEETING, MEETING_DESCRIPTION, today.atTime(12, 0), today.atTime(13, 0))

@@ -95,7 +95,6 @@ class CalendarMacroIT
     void beforeAll(TestUtils setup)
     {
         setup.loginAsSuperAdmin();
-        // The browser remembers the calendar view: start from the default one, whatever the previous tests did.
         CalendarElement.forgetSelectedView();
     }
 

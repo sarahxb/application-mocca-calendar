@@ -81,7 +81,6 @@ class RecurrentEventIT
     void beforeAll(TestUtils setup)
     {
         setup.loginAsSuperAdmin();
-        // The browser remembers the calendar view: start from the default one, whatever the previous tests did.
         CalendarElement.forgetSelectedView();
     }
 
@@ -89,7 +88,6 @@ class RecurrentEventIT
     @Order(1)
     void createRecurrentEvent(TestUtils setup, TestReference testReference)
     {
-        // Start from a clean state, in case the tests are run again on the same XWiki instance.
         SpaceCleaner.deleteSpace(setup, testReference.getLastSpaceReference().getParent());
         SpaceReference parent = new SpaceReference(testReference.getLastSpaceReference().getParent());
         this.calendarReference = new DocumentReference("WebHome", new SpaceReference(CALENDAR_TITLE, parent));
