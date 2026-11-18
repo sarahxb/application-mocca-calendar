@@ -108,9 +108,10 @@ class ICalIT
     private DocumentReference subscribedCalendarReference;
 
     /**
-     * The number of events with the titles of the exported events displayed by the calendar of the home page before
-     * the tests, i.e. the events of other calendars of the wiki with the same titles, e.g. left by other runs of the
-     * tests on the same XWiki instance.
+     * The number of events with the titles of the exported events that the calendar of the home page displays before
+     * the tests. The tests clean only their own space, which is named after the running class: when the tests are run
+     * again on the same XWiki instance (e.g. with an external servlet engine), the events created by a run under
+     * another class name ({@code NestedICalIT} inside {@code AllIT}, or {@code ICalIT} alone) are still there.
      */
     private long otherMeetings;
 
@@ -141,10 +142,11 @@ class ICalIT
         // The calendar to export: one event with hours and one all day event, both today. The event with hours is at
         // noon so that it stays on the same day whatever the time zone it is exported and displayed in.
         this.sourceCalendarReference = new DocumentReference("WebHome", new SpaceReference(SOURCE_CALENDAR, parent));
-        CalendarPage sourcePage = CalendarPage.createCalendar(this.sourceCalendarReference, SOURCE_CALENDAR);
-        CalendarElement sourceCalendar = sourcePage.getCalendar().showToday(MONTH);
-        sourceCalendar.clickCreateEvent().setTitle(MEETING).setStartDate(EventDates.at(0, "12:00"))
-            .setEndDate(EventDates.at(0, "13:00")).setDescription(MEETING_DESCRIPTION).save();
+        CalendarPage.createCalendar(this.sourceCalendarReference, SOURCE_CALENDAR);
+        CalendarPage.createEvent(this.sourceCalendarReference, MEETING, EventDates.at(0, "12:00"),
+            EventDates.at(0, "13:00"), MEETING_DESCRIPTION);
+        // The all day event is created with the dialog, which converts the dates of the all day events.
+        CalendarElement sourceCalendar = CalendarPage.gotoToday(this.sourceCalendarReference, MONTH);
         sourceCalendar.clickCreateEvent().setTitle(HOLIDAY).setAllDay(true).setStartDate(EventDates.day(0))
             .setEndDate(EventDates.day(0)).save();
 
@@ -251,7 +253,8 @@ class ICalIT
     @Order(5)
     void importICalFile(TestUtils setup, TestReference testReference, @TempDir Path directory) throws Exception
     {
-        // The import refuses the files larger than the maximum upload size, which must be set.
+        // Bug: the import checks the file against the maximum upload size of the wiki preferences, and fails when that
+        // size is not set (the default) instead of falling back to the default limit. Set it.
         setup.updateObject("XWiki", "XWikiPreferences", "XWiki.XWikiPreferences", 0, "upload_maxsize", "10485760");
 
         SpaceReference parent = new SpaceReference(testReference.getLastSpaceReference().getParent());
@@ -260,8 +263,9 @@ class ICalIT
         CalendarElement calendar = importPage.getCalendar().showToday(MONTH);
 
         // An event with hours (at noon, to stay on the same day whatever the time zone), an all day event and a daily
-        // event with 3 instances. The last instance is given as a date (UNTIL): the import of a number of instances
-        // (COUNT) creates one instance too many, see the RecurrenceProcessor of macro-fullcalendar.
+        // event with 3 instances. The last instance is given as a date (UNTIL) because of a bug: a recurrence given as
+        // a number of instances (COUNT) is imported with one instance too many (RecurrenceProcessor of
+        // macro-fullcalendar).
         LocalDate today = EventDates.date(0);
         File file = new ICalFile()
             .addEvent(IMPORTED_MEETING, MEETING_DESCRIPTION, today.atTime(12, 0), today.atTime(13, 0))

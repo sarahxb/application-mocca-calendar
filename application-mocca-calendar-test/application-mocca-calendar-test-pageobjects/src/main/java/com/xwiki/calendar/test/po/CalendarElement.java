@@ -77,7 +77,7 @@ public class CalendarElement extends BaseElement
         /**
          * @return the identifier used by FullCalendar for this view
          */
-        public String getId()
+        String getId()
         {
             return this.id;
         }
@@ -691,14 +691,17 @@ public class CalendarElement extends BaseElement
 
     private List<WebElement> getEvents(String title)
     {
-        return getContainer().findElements(By.cssSelector("a.fc-event")).stream()
+        // The calendar is ready (see waitUntilReady), so its events are displayed: don't wait for an event when the
+        // displayed period has none.
+        return getDriver().findElementsWithoutWaiting(getContainer(), By.cssSelector("a.fc-event")).stream()
             .filter(event -> title.equals(event.findElement(EVENT_TITLE).getAttribute(TEXT_CONTENT).trim()))
             .collect(Collectors.toList());
     }
 
     private WebElement getAgendaEvent(String title)
     {
-        return getContainer().findElements(By.cssSelector(".fc-timeline-box .moccaevent")).stream()
+        return getDriver().findElementsWithoutWaiting(getContainer(), By.cssSelector(".fc-timeline-box .moccaevent"))
+            .stream()
             .filter(event -> title.equals(event.findElement(By.tagName("h5")).getAttribute(TEXT_CONTENT).trim()))
             .findFirst()
             .orElseThrow(() -> new IllegalArgumentException(String.format("No event with title [%s]", title)));
@@ -706,9 +709,7 @@ public class CalendarElement extends BaseElement
 
     private WebElement getEvent(String title)
     {
-        return getContainer().findElements(By.cssSelector("a.fc-event")).stream()
-            .filter(event -> title.equals(event.findElement(EVENT_TITLE).getAttribute(TEXT_CONTENT).trim()))
-            .findFirst()
+        return getEvents(title).stream().findFirst()
             .orElseThrow(() -> new IllegalArgumentException(String.format("No event with title [%s]", title)));
     }
 }

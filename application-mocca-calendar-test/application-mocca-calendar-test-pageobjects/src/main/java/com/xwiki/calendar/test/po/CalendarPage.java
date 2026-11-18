@@ -19,8 +19,13 @@
  */
 package com.xwiki.calendar.test.po;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openqa.selenium.By;
+import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.EntityReference;
+import org.xwiki.model.reference.SpaceReference;
 import org.xwiki.test.ui.po.ViewPage;
 
 /**
@@ -32,6 +37,8 @@ import org.xwiki.test.ui.po.ViewPage;
 public class CalendarPage extends ViewPage
 {
     private static final By ADD_CALENDAR_OBJECT = By.cssSelector(".add-calendar-object-container a");
+
+    private static final String EVENT_FIELD_PREFIX = "MoccaCalendar.MoccaCalendarEventClass_0_";
 
     /**
      * Opens the given page.
@@ -86,6 +93,49 @@ public class CalendarPage extends ViewPage
         getUtil().createPage(reference, "{{moccacalendar filter=\"page\"/}}", title);
         getUtil().addObject(reference, "MoccaCalendar.MoccaCalendarClass");
         return gotoPage(reference);
+    }
+
+    /**
+     * Creates an event in a calendar without using the event dialog, for the tests needing events without testing
+     * their creation. The calendars display the new event once reloaded.
+     *
+     * @param calendarReference the reference of the calendar page
+     * @param title the title of the event, which is also the name of its page
+     * @param startDate the start date, in the {@code yyyy/MM/dd HH:mm} format, see {@link EventDates}
+     * @param endDate the end date, in the same format
+     */
+    public static void createEvent(DocumentReference calendarReference, String title, String startDate,
+        String endDate)
+    {
+        createEvent(calendarReference, title, startDate, endDate, null);
+    }
+
+    /**
+     * Creates an event in a calendar without using the event dialog, for the tests needing events without testing
+     * their creation. The calendars display the new event once reloaded.
+     *
+     * @param calendarReference the reference of the calendar page
+     * @param title the title of the event, which is also the name of its page
+     * @param startDate the start date, in the {@code yyyy/MM/dd HH:mm} format, see {@link EventDates}
+     * @param endDate the end date, in the same format
+     * @param description the description of the event, or {@code null} for none
+     */
+    public static void createEvent(DocumentReference calendarReference, String title, String startDate,
+        String endDate, String description)
+    {
+        // Like the event dialog: a child page of the calendar, saved from the event template with the form fields.
+        DocumentReference eventReference =
+            new DocumentReference("WebHome", new SpaceReference(title, calendarReference.getLastSpaceReference()));
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("template", "MoccaCalendar.MoccaCalendarEventTemplate");
+        parameters.put("title", title);
+        parameters.put(EVENT_FIELD_PREFIX + "title", title);
+        parameters.put(EVENT_FIELD_PREFIX + "startDate", startDate);
+        parameters.put(EVENT_FIELD_PREFIX + "endDate", endDate);
+        if (description != null) {
+            parameters.put(EVENT_FIELD_PREFIX + "description", description);
+        }
+        getUtil().gotoPage(eventReference, "save", parameters);
     }
 
     /**

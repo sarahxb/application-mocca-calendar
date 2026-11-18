@@ -566,12 +566,15 @@ class CalendarEventIT
         SpaceReference parent = testReference.getLastSpaceReference();
         this.timeCalendarReference = new DocumentReference("WebHome", new SpaceReference(TIME_CALENDAR, parent));
         CalendarPage.createCalendar(this.timeCalendarReference, TIME_CALENDAR);
+        // The first and the last minutes of the day.
+        CalendarPage.createEvent(this.timeCalendarReference, MIDNIGHT_EVENT, EventDates.at(0, "00:00"),
+            EventDates.at(0, "00:30"));
+        CalendarPage.createEvent(this.timeCalendarReference, LATE_EVENT, EventDates.at(0, "23:00"),
+            EventDates.at(0, "23:59"));
+        CalendarPage.createEvent(this.timeCalendarReference, NOON_EVENT, EventDates.at(0, "12:00"),
+            EventDates.at(0, "13:00"));
 
         CalendarElement calendar = CalendarPage.gotoToday(this.timeCalendarReference, MONTH);
-        // The first and the last minutes of the day.
-        calendar.createEvent(MIDNIGHT_EVENT, EventDates.at(0, "00:00"), EventDates.at(0, "00:30"));
-        calendar.createEvent(LATE_EVENT, EventDates.at(0, "23:00"), EventDates.at(0, "23:59"));
-        calendar.createEvent(NOON_EVENT, EventDates.at(0, "12:00"), EventDates.at(0, "13:00"));
 
         // The month view shows the start time of the events.
         assertThat(calendar.getEventTitles(), containsInAnyOrder(MIDNIGHT_EVENT, LATE_EVENT, NOON_EVENT));
@@ -702,9 +705,10 @@ class CalendarEventIT
         SpaceReference parent = new SpaceReference(testReference.getLastSpaceReference().getParent());
         this.dragCalendarReference = new DocumentReference("WebHome", new SpaceReference(DRAG_CALENDAR, parent));
         CalendarPage.createCalendar(this.dragCalendarReference, DRAG_CALENDAR);
+        CalendarPage.createEvent(this.dragCalendarReference, WORKSHOP, EventDates.at(0, "10:00"),
+            EventDates.at(0, "11:00"));
 
         CalendarElement calendar = CalendarPage.gotoToday(this.dragCalendarReference, MONTH);
-        calendar.createEvent(WORKSHOP, EventDates.at(0, "10:00"), EventDates.at(0, "11:00"));
         assertTrue(calendar.canMoveEvent(WORKSHOP));
 
         // The event keeps its hours on the new day. The month view always displays the 2 next days.
@@ -716,8 +720,9 @@ class CalendarEventIT
     @Order(20)
     void moveToAnotherTime()
     {
+        CalendarPage.createEvent(this.dragCalendarReference, SYNC, EventDates.at(0, "10:00"),
+            EventDates.at(0, "11:00"));
         CalendarElement calendar = CalendarPage.gotoToday(this.dragCalendarReference, WEEK);
-        calendar.createEvent(SYNC, EventDates.at(0, "10:00"), EventDates.at(0, "11:00"));
 
         // The event keeps its duration.
         calendar.dragEventToTime(SYNC, "13:00");

@@ -27,6 +27,11 @@ import java.time.format.DateTimeFormatter;
  * Computes the event dates typed in the event form, relative to a reference day: the day the tests started, in UTC (the
  * time zone of the browser container). The reference day doesn't change during the tests, even if they run past
  * midnight; the calendars show it with {@link CalendarElement#showToday(CalendarElement.View)}.
+ * <p>
+ * The tests assume that the browser and the XWiki server both use UTC, which is the case when both run in Docker
+ * containers (the default). With a servlet engine outside Docker, on a machine in another time zone, the dates typed
+ * in the browser and the dates stored by the server can be on different days, e.g. for events close to midnight, and
+ * so can the times of the {@code .ics} files built by {@link ICalFile}, which are in UTC.
  *
  * @version $Id$
  * @since 2.22.1

@@ -108,14 +108,14 @@ class CalendarMacroIT
         this.calendarAReference = new DocumentReference("WebHome", new SpaceReference(CALENDAR_A, space));
         this.calendarBReference = new DocumentReference("WebHome", new SpaceReference(CALENDAR_B, space));
 
-        CalendarElement calendarA =
-            CalendarPage.createCalendar(this.calendarAReference, CALENDAR_A).getCalendar().showToday(MONTH);
+        CalendarPage.createCalendar(this.calendarAReference, CALENDAR_A);
+        CalendarPage.createCalendar(this.calendarBReference, CALENDAR_B);
         // The events are tomorrow: the upcoming events macro, tested below, lists only the events that are not
         // finished yet, so events of today would disappear from it during the day.
-        calendarA.createEvent(EVENT_A, EventDates.at(1, "10:00"), EventDates.at(1, "11:00"));
-        CalendarElement calendarB =
-            CalendarPage.createCalendar(this.calendarBReference, CALENDAR_B).getCalendar().showToday(MONTH);
-        calendarB.createEvent(EVENT_B, EventDates.at(1, "14:00"), EventDates.at(1, "15:00"));
+        CalendarPage.createEvent(this.calendarAReference, EVENT_A, EventDates.at(1, "10:00"),
+            EventDates.at(1, "11:00"));
+        CalendarPage.createEvent(this.calendarBReference, EVENT_B, EventDates.at(1, "14:00"),
+            EventDates.at(1, "15:00"));
 
         // A calendar page shows only its own events (the "page" filter).
         assertEquals(List.of(EVENT_A), CalendarPage.gotoToday(this.calendarAReference, MONTH).getEventTitles());
@@ -190,11 +190,12 @@ class CalendarMacroIT
         setup.addObject(new DocumentReference("WebPreferences", testReference.getLastSpaceReference()),
             "XWiki.XWikiPreferences", "rightPanels", "MoccaCalendar.Code.UpcomingEventsPanel", "showRightPanels", "1");
 
-        // Make sure that there are more upcoming events than the panel can list: the previous tests created 4 (events
-        // A, B and C, and the event of the macro calendar).
-        CalendarElement calendarB = CalendarPage.gotoToday(this.calendarBReference, MONTH);
+        // Make sure that there are more upcoming events than the panel can list: the previous methods of this class
+        // created 4 (events A, B and C, and the event of the macro calendar), and the other test classes may have left
+        // some more.
         for (String title : List.of("Event D", "Event E")) {
-            calendarB.createEvent(title, EventDates.at(1, "20:00"), EventDates.at(1, "21:00"));
+            CalendarPage.createEvent(this.calendarBReference, title, EventDates.at(1, "20:00"),
+                EventDates.at(1, "21:00"));
         }
 
         CalendarPage.create(testReference, "Upcoming events panel", "Some content.");

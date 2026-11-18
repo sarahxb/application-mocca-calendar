@@ -292,8 +292,9 @@ class RecurrentEventIT
         // The event starts on a Monday and takes place on Mondays and Wednesdays.
         LocalDate start = EventDates.date(1).with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY));
         int startDay = daysFromToday(start);
-        // The last instance is set on the Thursday after the last Wednesday: an instance starting at the time of the
-        // last instance is not generated for this frequency (unlike the other ones), see BUG_REPORTS.md.
+        // The last instance is set on the Thursday after the last Wednesday because of a bug: with a custom weekly
+        // frequency, the instance starting exactly at the date of the last instance is not generated (it is with the
+        // other frequencies).
         LocalDate lastWednesday = start.plusDays(16);
         createRecurrentEvent(title, startDay, Frequency.CUSTOM_WEEKLY, lastWednesday.plusDays(1))
             .setRecurrenceDays(Set.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY))
@@ -391,7 +392,7 @@ class RecurrentEventIT
     }
 
     @Test
-    @Order(18)
+    @Order(17)
     void firstInstanceEvent()
     {
         String title = "Onboarding";
@@ -404,7 +405,7 @@ class RecurrentEventIT
     }
 
     @Test
-    @Order(19)
+    @Order(18)
     @Disabled("https://github.com/xwikisas/application-mocca-calendar/issues/267")
     void moveSingleInstanceKeepsDuration()
     {
